@@ -1,0 +1,22 @@
+{
+  "name": "libs",
+  "version": "0.0.0",
+  "authors": [
+    "Yuri <yuri.vasquez91@gmail.com>"
+  ],
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "headtrackr": "*"
+  }
+}
