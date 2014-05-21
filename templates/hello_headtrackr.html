@@ -2,11 +2,13 @@
 <head>
 	<title>Headtrackr</title>
 	<script type="text/javascript" src="/libs/headtrackr/headtrackr.min.js"></script>
+  <script type="text/javascript" src="/libs/three_js/three.min.js"></script>
 </head>
 <body>
 	<!-- <canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas> -->
 <video id="inputVideo" autoplay loop></video>
 <div id="info"> nothing </div>
+<div id="camera_info">test</div>
 <script type="text/javascript">
   var canvasInput = document.createElement('canvas'); // compare
   canvasInput.setAttribute('width','320');
@@ -28,13 +30,47 @@
   canvasInput.setAttribute('height','240');
   document.body.appendChild(canvasInput);
   canvasInput.style.position = 'absolute';
-  canvasInput.style.top = '60px';
-  canvasInput.style.left = '10px';
-  canvasInput.style.zIndex = '1002';
+  canvasInput.style.top = '9px';
+  canvasInput.style.left = '9px';
+  // canvasInput.style.zIndex = '1002';
   canvasInput.style.display = 'block';
   var canvasCtx = canvasInput.getContext('2d');
   canvasCtx.strokeStyle = "#999";
-  canvasCtx.lineWidth = 2;
+  canvasCtx.lineWidth = 9;
+
+
+  // 3D WEBGL SCENE FOR GAME
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.5, 1000);
+
+  var renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  var render_div = renderer.domElement;
+  render_div.style.position='absolute'
+  // render_div.style.top = '0px';
+  render_div.style.left = '0px';
+  document.body.appendChild(render_div);
+
+  // Creating a cube. Adding it to scene
+  var geometry = new THREE.CubeGeometry(1,1,1);
+  var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+  var cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+  var score = 0;
+  camera.position.z = 5;
+
+  var render = function () {
+    requestAnimationFrame(render);
+
+    cube.rotation.x += 0.1;
+    cube.rotation.y += 0.1;
+    renderer.render(scene, camera);
+    score += 1;
+    document.getElementById("camera_info").innerHTML=camera.position.x+","+camera.position.y + ". Score: " + score.toString();
+
+  };
+
+  
 
   var drawIdent = function(cContext,x,y) {
 
@@ -53,16 +89,18 @@
 
     // draw marker, from x,y position
     cContext.beginPath();
-    cContext.moveTo(x-5,y);
-    cContext.lineTo(x+5,y);
+    cContext.moveTo(x-10,y);
+    cContext.lineTo(x+10,y);
     cContext.closePath();
     cContext.stroke();
 
     cContext.beginPath();
-    cContext.moveTo(x,y-5);
-    cContext.lineTo(x,y+5);
+    cContext.moveTo(x,y-10);
+    cContext.lineTo(x,y+10);
     cContext.closePath();
     cContext.stroke();
+
+    camera.position.x = (-1)*x/320*14 + 7;
 };
 
   error = 10;
@@ -79,6 +117,7 @@
   }, false);
   
 ;
+render();
 </script>
 </body>
 </html>
