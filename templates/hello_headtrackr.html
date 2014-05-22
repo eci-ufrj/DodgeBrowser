@@ -3,13 +3,97 @@
 	<title>Headtrackr</title>
 	<script type="text/javascript" src="/libs/headtrackr/headtrackr.min.js"></script>
   <script type="text/javascript" src="/libs/three_js/three.min.js"></script>
-</head>
+  <style type="text/css">
+  /*<!-- */
+    #score_info{
+      position: absolute;
+      right:20px;
+      top:280px;
+      color:white;
+      z-index: 100000;
+      font-size: 28px;
+    }
+  /*-->*/
+  </style>
+</head> 
 <body>
 	<!-- <canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas> -->
 <video id="inputVideo" autoplay loop></video>
 <div id="info"> nothing </div>
-<div id="camera_info">test</div>
+<div id="score_info">test</div>
 <script type="text/javascript">
+  
+
+
+  // 3D WEBGL SCENE FOR GAME
+
+  var objects_number = 50;
+  var scene_width = 14;
+  var scene_height = 8;
+  var scene_y_max = 4;
+  var scene_x_max = 7; 
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.5, 1400);
+
+  var renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  var render_div = renderer.domElement;
+  render_div.style.position='absolute'
+  // render_div.style.top = '0px';
+  render_div.style.left = '0px';
+  document.body.appendChild(render_div);
+
+  // Creating a cube. Adding it to scene
+  var geometry = new THREE.CubeGeometry(0.5,0.5,0.5);
+  var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+  var cube = new THREE.Mesh(geometry, material);
+  scene.add(cube);
+  var score = 0;
+  camera.position.z = 5;
+
+  var objects_creation = function(){
+    var objects_array = [];
+    for ( var i = 0; i<objects_number-1; i++){
+      var cube = new THREE.Mesh(geometry, material);
+      cube.position.x = Math.random()*(scene_width + 1) - scene_x_max;
+      cube.position.y = Math.random()*(scene_height + 1) - scene_y_max;
+      cube.position.z -= i + 5;
+      objects_array.push(cube)
+      scene.add(objects_array[i]);
+    }
+    return objects_array;
+  }
+  
+  objects_array = objects_creation();
+  var render = function () {
+    requestAnimationFrame(render);
+
+    for (var i = 0; i< objects_number-1; i++){
+      var array_object = objects_array[i];
+      var speed_multiplier = score/200;
+      array_object.position.z += 0.08 + 0.04*speed_multiplier;
+      array_object.rotation.x += 0.1;
+      array_object.rotation.y += 0.1;
+      if (array_object.position.z >= (camera.position.z + 1)){
+        array_object.position.z = -9;
+        array_object.position.x = Math.random()*(scene_width + 1) - scene_x_max;
+        array_object.position.y = Math.random()*(scene_height + 1) - scene_y_max;
+      }
+    }
+    cube.rotation.x += 0.1;
+    cube.rotation.y += 0.1;
+    // cube.position.z+= 0.05;
+    renderer.render(scene, camera);
+    score += 1;
+    document.getElementById("score_info").innerHTML= " Score: " + score.toString();
+
+  };
+
+  
+
+
+  // HEADTRACKING PART
+
   var canvasInput = document.createElement('canvas'); // compare
   canvasInput.setAttribute('width','320');
   canvasInput.setAttribute('height','240');
@@ -37,40 +121,6 @@
   var canvasCtx = canvasInput.getContext('2d');
   canvasCtx.strokeStyle = "#999";
   canvasCtx.lineWidth = 9;
-
-
-  // 3D WEBGL SCENE FOR GAME
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.5, 1000);
-
-  var renderer = new THREE.WebGLRenderer();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  var render_div = renderer.domElement;
-  render_div.style.position='absolute'
-  // render_div.style.top = '0px';
-  render_div.style.left = '0px';
-  document.body.appendChild(render_div);
-
-  // Creating a cube. Adding it to scene
-  var geometry = new THREE.CubeGeometry(1,1,1);
-  var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-  var cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
-  var score = 0;
-  camera.position.z = 5;
-
-  var render = function () {
-    requestAnimationFrame(render);
-
-    cube.rotation.x += 0.1;
-    cube.rotation.y += 0.1;
-    renderer.render(scene, camera);
-    score += 1;
-    document.getElementById("camera_info").innerHTML=camera.position.x+","+camera.position.y + ". Score: " + score.toString();
-
-  };
-
-  
 
   var drawIdent = function(cContext,x,y) {
 
@@ -100,7 +150,8 @@
     cContext.closePath();
     cContext.stroke();
 
-    camera.position.x = (-1)*x/320*14 + 7;
+    camera.position.x = (-1)*x/320*scene_width + scene_x_max;
+    camera.position.y = (-1)*y/240*scene_height + scene_y_max;
 };
 
   error = 10;
