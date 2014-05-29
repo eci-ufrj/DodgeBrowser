@@ -21,6 +21,7 @@
 <video id="inputVideo" autoplay loop></video>
 <div id="info"> nothing </div>
 <div id="score_info">test</div>
+<div id="collision_info"></div>
 <script type="text/javascript">
   
 
@@ -46,8 +47,6 @@
   // Creating a cube. Adding it to scene
   var geometry = new THREE.CubeGeometry(0.5,0.5,0.5);
   var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-  var cube = new THREE.Mesh(geometry, material);
-  scene.add(cube);
   var score = 0;
   camera.position.z = 5;
 
@@ -63,6 +62,7 @@
     }
     return objects_array;
   }
+  var collision = 0;
   
   objects_array = objects_creation();
   var render = function () {
@@ -71,17 +71,24 @@
     for (var i = 0; i< objects_number-1; i++){
       var array_object = objects_array[i];
       var speed_multiplier = score/200;
-      array_object.position.z += 0.08 + 0.04*speed_multiplier;
-      array_object.rotation.x += 0.1;
-      array_object.rotation.y += 0.1;
+      if (!collision){
+        array_object.position.z += 0.08 + 0.04*speed_multiplier;
+        array_object.rotation.x += 0.1;
+        array_object.rotation.y += 0.1;  
+      }
+      
       if (array_object.position.z >= (camera.position.z + 1)){
         array_object.position.z = -9;
         array_object.position.x = Math.random()*(scene_width + 1) - scene_x_max;
         array_object.position.y = Math.random()*(scene_height + 1) - scene_y_max;
       }
+      if (array_object.position.z < camera.position.z + 0.25 && array_object.position.z >  camera.position.z - 0.25 
+        && array_object.position.y < camera.position.y + 0.25 && array_object.position.y > camera.position.y - 0.25 
+        && array_object.position.x < camera.position.x + 0.25 && array_object.position.x > camera.position.x - 0.25){
+        collision = 1
+      }
     }
-    cube.rotation.x += 0.1;
-    cube.rotation.y += 0.1;
+
     // cube.position.z+= 0.05;
     renderer.render(scene, camera);
     score += 1;
@@ -150,8 +157,11 @@
     cContext.closePath();
     cContext.stroke();
 
-    // camera.position.x = (-1)*x/320*scene_width + scene_x_max;
-    // camera.position.y = (-1)*y/240*scene_height + scene_y_max;
+    if (!collision){
+      camera.position.x = (-1)*x/320*scene_width + scene_x_max;
+      camera.position.y = (-1)*y/240*scene_height + scene_y_max;  
+    }
+    
 };
 
   error = 10;
