@@ -13,17 +13,67 @@
       z-index: 100000;
       font-size: 28px;
     }
+		#startGame{
+			position:absolute;
+			z-index:100001;
+			top:610px;
+			left:600px;
+			font-size:26px;
+		}
+		.startGameButton {
+			-moz-box-shadow:inset 0px 1px 0px 0px #000000;
+			-webkit-box-shadow:inset 0px 1px 0px 0px #000000;
+			box-shadow:inset 0px 1px 0px 0px #000000;
+			background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #0a000a), color-stop(1, #000000) );
+			background:-moz-linear-gradient( center top, #0a000a 5%, #000000 100% );
+			filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#0a000a', endColorstr='#000000');
+			background-color:#0a000a;
+			-webkit-border-top-left-radius:6px;
+			-moz-border-radius-topleft:6px;
+			border-top-left-radius:6px;
+			-webkit-border-top-right-radius:6px;
+			-moz-border-radius-topright:6px;
+			border-top-right-radius:6px;
+			-webkit-border-bottom-right-radius:6px;
+			-moz-border-radius-bottomright:6px;
+			border-bottom-right-radius:6px;
+			-webkit-border-bottom-left-radius:6px;
+			-moz-border-radius-bottomleft:6px;
+			border-bottom-left-radius:6px;
+			text-indent:0;
+			border:1px solid #dcdcdc;
+			display:inline-block;
+			color:#ffffff;
+			font-family:arial;
+			font-size:15px;
+			font-weight:bold;
+			font-style:normal;
+			height:79px;
+			line-height:79px;
+			width:250px;
+			text-decoration:none;
+			text-align:center;
+			text-shadow:1px 1px 0px #000000;
+		}
+		.startGameButton:hover {
+			background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #000000), color-stop(1, #0a000a) );
+			background:-moz-linear-gradient( center top, #000000 5%, #0a000a 100% );
+			filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#000000', endColorstr='#0a000a');
+			background-color:#000000;
+		}
   /*-->*/
   </style>
-</head> 
+</head>
 <body>
 	<!-- <canvas id="inputCanvas" width="320" height="240" style="display:none"></canvas> -->
 <video id="inputVideo" autoplay loop></video>
 <div id="info"> nothing </div>
 <div id="score_info">test</div>
 <div id="collision_info"></div>
+<a href="javascript:;" class="startGameButton" id="startGame" onclick="startGame();">Start Game</a>
+<!-- <button name="start game" id="startGame" onclick="startGame();">Start Game!</button> -->
 <script type="text/javascript">
-  
+
 
 
   // 3D WEBGL SCENE FOR GAME
@@ -32,7 +82,7 @@
   var scene_width = 14;
   var scene_height = 8;
   var scene_y_max = 4;
-  var scene_x_max = 7; 
+  var scene_x_max = 7;
   var scene = new THREE.Scene();
   var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.5, 1400);
 
@@ -42,14 +92,20 @@
   render_div.style.position='absolute'
   // render_div.style.top = '0px';
   render_div.style.left = '0px';
+	render_div.style.opacity = '0.8';
   document.body.appendChild(render_div);
 
-  // Creating a cube. Adding it to scene
+	// Setting cubes model
   var geometry = new THREE.CubeGeometry(0.5,0.5,0.5);
   var material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+
+	// Initializing game score
   var score = 0;
+	document.getElementById("score_info").innerHTML= " Score: " + score.toString();
+
   camera.position.z = 5;
 
+	// Function that creates games cubes
   var objects_creation = function(){
     var objects_array = [];
     for ( var i = 0; i<objects_number-1; i++){
@@ -62,9 +118,12 @@
     }
     return objects_array;
   }
+
+	// GAME STATES
+	var started_game = 0;
   var collision = 0;
-  
-  objects_array = objects_creation();
+
+
   var render = function () {
     requestAnimationFrame(render);
 
@@ -74,29 +133,49 @@
       if (!collision){
         array_object.position.z += 0.08 + 0.04*speed_multiplier;
         array_object.rotation.x += 0.1;
-        array_object.rotation.y += 0.1;  
+        array_object.rotation.y += 0.1;
       }
-      
+
       if (array_object.position.z >= (camera.position.z + 1)){
         array_object.position.z = -9;
         array_object.position.x = Math.random()*(scene_width + 1) - scene_x_max;
         array_object.position.y = Math.random()*(scene_height + 1) - scene_y_max;
       }
-      if (array_object.position.z < camera.position.z + 0.25 && array_object.position.z >  camera.position.z - 0.25 
-        && array_object.position.y < camera.position.y + 0.25 && array_object.position.y > camera.position.y - 0.25 
+      if (array_object.position.z < camera.position.z + 0.25 && array_object.position.z >  camera.position.z - 0.25
+        && array_object.position.y < camera.position.y + 0.25 && array_object.position.y > camera.position.y - 0.25
         && array_object.position.x < camera.position.x + 0.25 && array_object.position.x > camera.position.x - 0.25){
         collision = 1
+
       }
     }
 
     // cube.position.z+= 0.05;
     renderer.render(scene, camera);
-    score += 1;
+		if (!collision){
+				score += 1;
+		}
+
     document.getElementById("score_info").innerHTML= " Score: " + score.toString();
 
   };
 
-  
+	// START and RESTART MENUS
+
+	// START MENU
+
+	var startGame = function(){
+		start_button = document.getElementById('startGame');
+		start_button.style.display = 'none';
+
+		// Create cubes for the game
+		objects_array = objects_creation();
+
+		// Set score 0
+		score = 0;
+
+		// Putting game scene on focus
+		render_div.style.opacity = '1';
+	};
 
 
   // HEADTRACKING PART
@@ -159,14 +238,14 @@
 
     if (!collision){
       camera.position.x = (-1)*x/320*scene_width + scene_x_max;
-      camera.position.y = (-1)*y/240*scene_height + scene_y_max;  
+      camera.position.y = (-1)*y/240*scene_height + scene_y_max;
     }
-    
+
 };
 
   error = 10;
   document.addEventListener("facetrackingEvent",function (event) {
-  	
+
   	if (x===undefined||Math.abs(x-event.x)>error){
   		x=event.x;
   	}
@@ -176,7 +255,7 @@
   	document.getElementById("info").innerHTML=x+","+y;
     drawIdent(canvasCtx, event.x, event.y);
   }, false);
-  
+
 ;
 render();
 </script>
