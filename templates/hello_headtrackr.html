@@ -20,7 +20,51 @@
 			left:600px;
 			font-size:26px;
 		}
-		.startGameButton {
+		#gameOverMenu{
+			position:absolute;
+			z-index:1000001;
+			top:540px;
+			left:420px;
+			background-color:black;
+			height:250px;
+			width: 650px;
+			display:none;
+			-webkit-border-top-left-radius:6px;
+			-moz-border-radius-topleft:6px;
+			border-top-left-radius:6px;
+			-webkit-border-top-right-radius:6px;
+			-moz-border-radius-topright:6px;
+			border-top-right-radius:6px;
+			-webkit-border-bottom-right-radius:6px;
+			-moz-border-radius-bottomright:6px;
+			border-bottom-right-radius:6px;
+			-webkit-border-bottom-left-radius:6px;
+			-moz-border-radius-bottomleft:6px;
+			border-bottom-left-radius:6px;
+		}
+
+		#gameOverMenu a{
+			position:relative;
+			font-size:26px;
+			top: 60px;
+			left:30px;
+		}
+
+		#gameOverMenu #restartGame{
+			margin-right: 80px;
+		}
+
+		#gameOverMenu p{
+			color: white;
+			margin: auto;
+			margin-left: 150px;
+			margin-top:20px;
+			font-weight: bold;
+			font-size: 60px;
+			font-family:arial;
+		}
+
+		.gameButton {
 			-moz-box-shadow:inset 0px 1px 0px 0px #000000;
 			-webkit-box-shadow:inset 0px 1px 0px 0px #000000;
 			box-shadow:inset 0px 1px 0px 0px #000000;
@@ -70,8 +114,14 @@
 <div id="info"> nothing </div>
 <div id="score_info">test</div>
 <div id="collision_info"></div>
-<a href="javascript:;" class="startGameButton" id="startGame" onclick="startGame();">Start Game</a>
-<!-- <button name="start game" id="startGame" onclick="startGame();">Start Game!</button> -->
+<a href="javascript:;" class="gameButton" id="startGame" onclick="startGame();">Start Game</a>
+<div id="gameOverMenu">
+	<p>
+		Game Over!
+	</p>
+	<a href="javascript:;" class="gameButton" id = "restartGame" onclick="restartGame();">Restart Game</a>
+	<a href="javascript:;" class="gameButton" id="menuButton" onclick="gameMenu();">Menu</a>
+</div>
 <script type="text/javascript">
 
 
@@ -143,9 +193,13 @@
       }
       if (array_object.position.z < camera.position.z + 0.25 && array_object.position.z >  camera.position.z - 0.25
         && array_object.position.y < camera.position.y + 0.25 && array_object.position.y > camera.position.y - 0.25
-        && array_object.position.x < camera.position.x + 0.25 && array_object.position.x > camera.position.x - 0.25){
+        && array_object.position.x < camera.position.x + 0.25 && array_object.position.x > camera.position.x - 0.25
+			&& !menu){
+				menu = 1
         collision = 1
-
+				game_button = document.getElementById('gameOverMenu');
+				game_button.style.display = 'block';
+				render_div.style.opacity = '0.8';
       }
     }
 
@@ -162,8 +216,12 @@
 	// START and RESTART MENUS
 
 	// START MENU
+	var objects_array;
+	var menu = 1;
 
 	var startGame = function(){
+		menu = 0;
+		collision=0;
 		start_button = document.getElementById('startGame');
 		start_button.style.display = 'none';
 
@@ -175,6 +233,33 @@
 
 		// Putting game scene on focus
 		render_div.style.opacity = '1';
+	};
+
+	var restartGame = function(){
+		collision = 0;
+		for (var i = 0; i<objects_number -1; i++){
+			var array_object = objects_array[i];
+			array_object.position.x = Math.random()*(scene_width + 1) - scene_x_max;
+			array_object.position.y = Math.random()*(scene_height + 1) - scene_y_max;
+			array_object.position.z -= i + 5;
+		}
+		score = 0;
+		game_over = document.getElementById('gameOverMenu');
+		game_over.style.display = 'none';
+		render_div.style.opacity = '1';
+	};
+
+	var gameMenu = function(){
+
+
+		start_button = document.getElementById('startGame');
+		start_button.style.display = 'block';
+		for (var i = 0; i<objects_number -1; i++){
+			var array_object = objects_array[i];
+			scene.remove(array_object);
+		}
+		game_over = document.getElementById('gameOverMenu');
+		game_over.style.display = 'none';
 	};
 
 
